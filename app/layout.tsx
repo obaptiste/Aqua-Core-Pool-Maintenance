@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Aqua Core Pool Maintenance',
-  description: 'Training modules for pool operations and maintenance.',
+  title: 'AquaPool | AquaCore Pool Maintenance',
+  description: 'Professional pool operations training and compliance modules for AquaPool teams.',
 };
 
 export default function RootLayout({
@@ -12,8 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" data-theme="ocean">
+      <body>
+        <ThemeToggle />
+        {children}
+      </body>
     </html>
   );
 }

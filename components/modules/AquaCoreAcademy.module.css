@@ -1,0 +1,241 @@
+.page {
+  width: min(1120px, 100% - 1.5rem);
+  margin: 0 auto;
+  padding: 1rem 0 2.5rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.progressTrack {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.35rem;
+  background: rgba(15, 23, 42, 0.35);
+  z-index: 30;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+}
+
+.glass,
+.panel,
+.authCard,
+.moduleCard,
+.quickRef,
+.cert {
+  border: 1px solid var(--glass-bg-1);
+  background: linear-gradient(140deg, var(--glass-border), var(--glass-bg-2));
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  box-shadow: 0 14px 40px rgba(3, 10, 28, 0.26);
+}
+
+.hero {
+  border-radius: 1.25rem;
+  padding: 1rem;
+  color: #ecfeff;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  color: #a5f3fc;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0.4rem 0 0;
+  font-size: clamp(1.55rem, 7vw, 2.8rem);
+  line-height: 1.08;
+}
+
+.hero p {
+  margin: 0.6rem 0 0;
+  color: rgba(236, 254, 255, 0.92);
+  line-height: 1.56;
+}
+
+.heroMeta {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.metaCard {
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  padding: 0.65rem;
+}
+
+.metaCard strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.authCard {
+  border-radius: 1.1rem;
+  padding: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 0.7rem;
+  padding: 0.68rem 0.8rem;
+  font: inherit;
+}
+
+.button,
+.ghost,
+.quizBtn,
+.smallBtn {
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.62rem 0.95rem;
+  font-weight: 650;
+  font: inherit;
+}
+
+.button,
+.quizBtn {
+  background: linear-gradient(110deg, var(--accent-1), var(--accent-2));
+  color: white;
+}
+
+.ghost,
+.smallBtn {
+  background: rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  color: var(--text-main);
+}
+
+.helper {
+  margin: 0.7rem 0 0;
+  font-size: 0.86rem;
+  color: var(--muted-text);
+}
+
+.demo {
+  margin-top: 0.8rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.08);
+  border: 1px dashed rgba(30, 64, 175, 0.4);
+  padding: 0.7rem;
+  font-size: 0.84rem;
+  color: #0f172a;
+}
+
+.panel {
+  border-radius: 1.1rem;
+  padding: 0.95rem;
+}
+
+.moduleCard {
+  border-radius: 1rem;
+  padding: 0.9rem;
+}
+
+.moduleHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.badges {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.badge {
+  font-size: 0.72rem;
+  background: rgba(34, 211, 238, 0.2);
+  color: var(--muted-text);
+  border: 1px solid rgba(103, 232, 249, 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.actions {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.list,
+.alerts {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+  line-height: 1.5;
+}
+
+.quiz {
+  margin-top: 0.75rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--panel-border);
+  background: rgba(15, 23, 42, 0.2);
+  padding: 0.75rem;
+}
+
+.options {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.93rem;
+}
+
+.quickRef {
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.6rem;
+}
+
+.table td,
+.table th {
+  border: 1px solid var(--panel-border);
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.cert {
+  border-radius: 1rem;
+  text-align: center;
+  padding: 1.2rem;
+}
+
+@media (min-width: 800px) {
+  .hero,
+  .authCard,
+  .panel,
+  .quickRef,
+  .cert {
+    padding: 1.4rem;
+  }
+
+  .heroMeta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
