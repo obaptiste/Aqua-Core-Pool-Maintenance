@@ -7,15 +7,36 @@ export interface AcademyUser {
 const USERS_KEY = 'aquacore-users';
 const SESSION_KEY = 'aquacore-session';
 
+const DEMO_USER: AcademyUser = {
+  name: 'AquaPool Demo Operator',
+  email: 'operator@aquapool.demo',
+  password: 'AquaPool#2026',
+};
+
 const canUseStorage = () => typeof window !== 'undefined';
 
-export function getRegisteredUsers(): AcademyUser[] {
-  if (!canUseStorage()) return [];
-  const raw = window.localStorage.getItem(USERS_KEY);
-  if (!raw) return [];
+function withDemoUser(users: AcademyUser[]): AcademyUser[] {
+  const hasDemo = users.some((user) => user.email.toLowerCase() === DEMO_USER.email.toLowerCase());
+  return hasDemo ? users : [DEMO_USER, ...users];
+}
 
-  const parsed = JSON.parse(raw) as AcademyUser[];
-  return Array.isArray(parsed) ? parsed : [];
+export function getDemoUserCredentials() {
+  return { email: DEMO_USER.email, password: DEMO_USER.password };
+}
+
+export function getRegisteredUsers(): AcademyUser[] {
+  if (!canUseStorage()) return [DEMO_USER];
+
+  const raw = window.localStorage.getItem(USERS_KEY);
+  const parsed = raw ? ((JSON.parse(raw) as AcademyUser[]) ?? []) : [];
+  const users = Array.isArray(parsed) ? parsed : [];
+  const merged = withDemoUser(users);
+
+  if (merged.length !== users.length) {
+    window.localStorage.setItem(USERS_KEY, JSON.stringify(merged));
+  }
+
+  return merged;
 }
 
 export function registerUser(user: AcademyUser): { ok: boolean; message: string } {

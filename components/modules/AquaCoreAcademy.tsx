@@ -1,7 +1,9 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import styles from './AquaCoreAcademy.module.css';
 import {
+  getDemoUserCredentials,
   getSessionUser,
   loginUser,
   logoutUser,
@@ -55,16 +57,14 @@ export default function AquaCoreAcademy() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authMessage, setAuthMessage] = useState('');
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
+  const [email, setEmail] = useState(getDemoUserCredentials().email);
+  const [password, setPassword] = useState(getDemoUserCredentials().password);
   const [openModuleId, setOpenModuleId] = useState(poolMaintenanceModules[0]?.id ?? '');
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [quizResults, setQuizResults] = useState<Record<string, boolean>>({});
   const [quizFeedback, setQuizFeedback] = useState<Record<string, string>>({});
   const [showSimple, setShowSimple] = useState<Record<string, boolean>>({});
   const [scrollProgress, setScrollProgress] = useState(0);
-
   const [activeSpeechId, setActiveSpeechId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -83,31 +83,21 @@ export default function AquaCoreAcademy() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const completion = useMemo(
-    () => academyCompletionPercentage(poolMaintenanceModules, quizResults),
-    [quizResults],
-  );
-  const completedAcademy = useMemo(
-    () => hasCompletedAcademy(poolMaintenanceModules, quizResults),
-    [quizResults],
-  );
+  const completion = useMemo(() => academyCompletionPercentage(poolMaintenanceModules, quizResults), [quizResults]);
+  const completedAcademy = useMemo(() => hasCompletedAcademy(poolMaintenanceModules, quizResults), [quizResults]);
 
   const certificateNumber = useMemo(() => {
     if (!sessionUser || !completedAcademy) return null;
     return createCertificateNumber(sessionUser.name, new Date());
   }, [sessionUser, completedAcademy]);
 
-  const activeModule = poolMaintenanceModules.find((module) => module.id === openModuleId);
-
   const submitAuth = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const result = isLoginMode
       ? loginUser(email, password)
       : registerUser({ name: name.trim(), email: email.trim(), password });
 
     setAuthMessage(result.message);
-
     if (result.ok) {
       setSessionUser(getSessionUser());
       setPassword('');
@@ -120,10 +110,7 @@ export default function AquaCoreAcademy() {
 
     const selectedAnswer = quizAnswers[moduleId];
     if (selectedAnswer === undefined) {
-      setQuizFeedback((current) => ({
-        ...current,
-        [moduleId]: 'Please choose an answer before submitting.',
-      }));
+      setQuizFeedback((current) => ({ ...current, [moduleId]: 'Please choose an answer before submitting.' }));
       return;
     }
 
@@ -146,7 +133,6 @@ export default function AquaCoreAcademy() {
     }
 
     window.speechSynthesis.cancel();
-
     const message = `${module.title}. ${module.overview}. Key procedures: ${module.procedures.join('. ')}`;
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.rate = 0.93;
@@ -158,252 +144,215 @@ export default function AquaCoreAcademy() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const signOut = () => {
-    logoutUser();
-    setSessionUser(null);
-    setAuthMessage('Signed out.');
-  };
-
   if (!sessionUser) {
-    return (
-      <section className="max-w-2xl mx-auto p-6 md:p-10 bg-white rounded-3xl shadow-xl border border-slate-200">
-        <h1 className="text-3xl font-extrabold text-slate-900 mb-2">AquaCore Academy Access</h1>
-        <p className="text-slate-600 mb-6">
-          Sign in to continue your certified pool maintenance training programme.
-        </p>
+    const demoCreds = getDemoUserCredentials();
 
-        <form onSubmit={submitAuth} className="space-y-4">
-          {!isLoginMode && (
+    return (
+      <section className={styles.page}>
+        <article className={styles.authCard}>
+          <h1>AquaCore Academy Access</h1>
+          <p>Sign in to continue your certified pool maintenance training programme.</p>
+          <form onSubmit={submitAuth} className={styles.form}>
+            {!isLoginMode && (
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className={styles.input}
+                placeholder="Full name"
+                required
+              />
+            )}
             <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="w-full border border-slate-300 rounded-xl px-4 py-3"
-              placeholder="Full name"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              className={styles.input}
+              placeholder="Work email"
               required
             />
-          )}
-          <input
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            type="email"
-            className="w-full border border-slate-300 rounded-xl px-4 py-3"
-            placeholder="Work email"
-            required
-          />
-          <input
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            type="password"
-            className="w-full border border-slate-300 rounded-xl px-4 py-3"
-            placeholder="Password"
-            required
-          />
+            <input
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              type="password"
+              className={styles.input}
+              placeholder="Password"
+              required
+            />
+            <button type="submit" className={styles.button}>
+              {isLoginMode ? 'Sign in to AquaCore Academy' : 'Create account'}
+            </button>
+          </form>
           <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-cyan-600 to-blue-700 text-white rounded-xl px-5 py-3 font-semibold"
+            type="button"
+            onClick={() => {
+              setIsLoginMode((current) => !current);
+              setAuthMessage('');
+            }}
+            className={styles.ghost}
           >
-            {isLoginMode ? 'Sign in to AquaCore Academy' : 'Create account'}
+            {isLoginMode ? 'Need an account? Register now' : 'Already registered? Sign in'}
           </button>
-        </form>
 
-        <button
-          type="button"
-          onClick={() => {
-            setIsLoginMode((current) => !current);
-            setAuthMessage('');
-          }}
-          className="mt-4 text-cyan-700 font-medium"
-        >
-          {isLoginMode ? 'Need an account? Register now' : 'Already registered? Sign in'}
-        </button>
+          {authMessage && <p className={styles.helper}>{authMessage}</p>}
 
-        {authMessage && <p className="mt-4 text-sm text-slate-700">{authMessage}</p>}
+          <p className={styles.demo}>
+            Demo login: <strong>{demoCreds.email}</strong> / <strong>{demoCreds.password}</strong>
+          </p>
+        </article>
       </section>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      <div className="fixed top-0 left-0 right-0 h-1.5 bg-slate-200 z-20">
-        <div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-700 transition-all duration-200"
-          style={{ width: `${scrollProgress}%` }}
-        />
+    <div className={styles.page}>
+      <div className={styles.progressTrack}>
+        <div className={styles.progressBar} style={{ width: `${scrollProgress}%` }} />
       </div>
 
-      <header className="bg-gradient-to-r from-slate-900 via-cyan-900 to-blue-900 text-white rounded-3xl p-8 shadow-2xl mt-3">
-        <div className="flex flex-wrap justify-between gap-4 items-start">
-          <div>
-            <p className="uppercase tracking-[0.2em] text-cyan-200 text-xs">Professional training</p>
-            <h1 className="text-3xl md:text-5xl font-extrabold mt-2">AquaCore Academy</h1>
-            <p className="text-cyan-100 mt-3 max-w-2xl">
-              UK-compliant pool operations programme with 12 modules, practical drills, instant
-              knowledge checks, and completion certification.
-            </p>
+      <header className={styles.hero}>
+        <p className={styles.eyebrow}>Professional training</p>
+        <h1>AquaCore Academy</h1>
+        <p>
+          UK-compliant pool operations programme with 12 modules, practical drills, instant knowledge checks,
+          and completion certification.
+        </p>
+        <div className={styles.heroMeta}>
+          <div className={styles.metaCard}>
+            <small>Signed in as</small>
+            <strong>{sessionUser.name}</strong>
           </div>
-          <div className="text-right">
-            <p className="text-cyan-100 text-sm">Signed in as</p>
-            <p className="font-semibold">{sessionUser.name}</p>
-            <button type="button" onClick={signOut} className="mt-2 text-sm text-cyan-200 underline">
+          <div className={styles.metaCard}>
+            <small>Progress</small>
+            <strong>{completion}%</strong>
+          </div>
+          <div className={styles.metaCard}>
+            <small>Modules</small>
+            <strong>{poolMaintenanceModules.length}</strong>
+          </div>
+          <div className={styles.metaCard}>
+            <small>Session</small>
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={() => {
+                logoutUser();
+                setSessionUser(null);
+              }}
+            >
               Sign out
             </button>
           </div>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-xs text-cyan-100 uppercase">Modules</p>
-            <p className="text-2xl font-bold">12</p>
-          </div>
-          <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-xs text-cyan-100 uppercase">Regulations</p>
-            <p className="text-2xl font-bold">UK Focused</p>
-          </div>
-          <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-xs text-cyan-100 uppercase">Completion</p>
-            <p className="text-2xl font-bold">{completion}%</p>
-          </div>
-          <div className="bg-white/10 rounded-xl p-4">
-            <p className="text-xs text-cyan-100 uppercase">Certificate</p>
-            <p className="text-2xl font-bold">{completedAcademy ? 'Unlocked' : 'In progress'}</p>
-          </div>
-        </div>
       </header>
 
-      <section className="grid gap-4">
+      <section className={styles.panel}>
         {poolMaintenanceModules.map((module) => {
-          const isOpen = module.id === openModuleId;
+          const open = openModuleId === module.id;
           const selectedAnswer = quizAnswers[module.id];
 
           return (
-            <article key={module.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm">
-              <button
-                type="button"
-                onClick={() => setOpenModuleId(isOpen ? '' : module.id)}
-                className="w-full px-5 py-4 text-left flex flex-wrap justify-between items-center gap-2"
-              >
+            <article key={module.id} className={styles.moduleCard}>
+              <div className={styles.moduleHeader}>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">{module.title}</h2>
-                  <p className="text-sm text-slate-600">Duration: {module.duration}</p>
+                  <h2>{module.title}</h2>
+                  <p>{module.duration}</p>
                 </div>
-                <span className="text-sm font-medium text-cyan-700">{isOpen ? 'Hide module' : 'Open module'}</span>
-              </button>
+                <button
+                  type="button"
+                  className={styles.smallBtn}
+                  onClick={() => setOpenModuleId(open ? '' : module.id)}
+                >
+                  {open ? 'Collapse' : 'Open'}
+                </button>
+              </div>
 
-              {isOpen && (
-                <div className="px-5 pb-5 border-t border-slate-100 pt-4 space-y-4">
-                  <div className="flex flex-wrap gap-2">
+              {open && (
+                <>
+                  <div className={styles.badges}>
                     {module.regulatoryFocus.map((regulation) => (
-                      <span
-                        key={regulation}
-                        className="text-xs font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-full px-3 py-1"
-                      >
+                      <span key={regulation} className={styles.badge}>
                         {regulation}
                       </span>
                     ))}
                   </div>
 
-                  <p className="text-slate-700 leading-relaxed">
-                    {showSimple[module.id] ? makeSimple(module.overview) : module.overview}
-                  </p>
+                  <p>{showSimple[module.id] ? makeSimple(module.overview) : module.overview}</p>
 
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => toggleSpeech(module.id)}
-                      className="px-3 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-800"
-                    >
+                  <div className={styles.actions}>
+                    <button type="button" className={styles.smallBtn} onClick={() => toggleSpeech(module.id)}>
                       {activeSpeechId === module.id ? '⏹ Stop' : '🔊 Read aloud'}
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowSimple((current) => ({ ...current, [module.id]: !current[module.id] }))
-                      }
-                      className="px-3 py-2 rounded-lg text-sm font-medium bg-violet-100 text-violet-800"
+                      className={styles.smallBtn}
+                      onClick={() => setShowSimple((current) => ({ ...current, [module.id]: !current[module.id] }))}
                     >
-                      ✨ {showSimple[module.id] ? 'Show technical copy' : 'Simplify'}
+                      {showSimple[module.id] ? 'Show technical copy' : 'Simplify'}
                     </button>
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold text-slate-900 mb-2">Step-by-step procedures</h3>
-                    <ol className="list-decimal pl-5 space-y-1 text-slate-700">
-                      {module.procedures.map((step) => (
-                        <li key={step}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
+                  <ol className={styles.list}>
+                    {module.procedures.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
 
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                    <p className="font-semibold text-slate-900 mb-2">Knowledge check</p>
-                    <p className="text-sm text-slate-700 mb-3">{module.quiz.question}</p>
-                    <div className="space-y-2">
+                  <div className={styles.quiz}>
+                    <p>{module.quiz.question}</p>
+                    <div className={styles.options}>
                       {module.quiz.options.map((option, index) => (
-                        <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
+                        <label key={option}>
                           <input
                             type="radio"
                             name={`quiz-${module.id}`}
                             checked={selectedAnswer === index}
-                            onChange={() =>
-                              setQuizAnswers((current) => ({
-                                ...current,
-                                [module.id]: index,
-                              }))
-                            }
-                          />
+                            onChange={() => setQuizAnswers((current) => ({ ...current, [module.id]: index }))}
+                          />{' '}
                           {option}
                         </label>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => submitQuiz(module.id)}
-                      className="mt-3 px-4 py-2 rounded-lg bg-cyan-700 text-white text-sm font-semibold"
-                    >
+                    <button type="button" className={styles.quizBtn} onClick={() => submitQuiz(module.id)}>
                       Submit answer
                     </button>
-                    {quizFeedback[module.id] && (
-                      <p className="mt-3 text-sm text-slate-700">{quizFeedback[module.id]}</p>
-                    )}
+                    {quizFeedback[module.id] && <p className={styles.helper}>{quizFeedback[module.id]}</p>}
                   </div>
-                </div>
+                </>
               )}
             </article>
           );
         })}
       </section>
 
-      <section className="bg-white rounded-2xl border border-slate-200 p-6">
-        <h2 className="text-2xl font-bold text-slate-900 mb-4">Maintenance cadence planner</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-slate-100 text-left">
-                <th className="p-3 border border-slate-200">Frequency</th>
-                <th className="p-3 border border-slate-200">Core tasks</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="p-3 border border-slate-200 font-semibold">Daily</td>
-                <td className="p-3 border border-slate-200">{maintenanceCadence.daily.join(' • ')}</td>
-              </tr>
-              <tr>
-                <td className="p-3 border border-slate-200 font-semibold">Weekly</td>
-                <td className="p-3 border border-slate-200">{maintenanceCadence.weekly.join(' • ')}</td>
-              </tr>
-              <tr>
-                <td className="p-3 border border-slate-200 font-semibold">Monthly</td>
-                <td className="p-3 border border-slate-200">{maintenanceCadence.monthly.join(' • ')}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <section className={styles.quickRef}>
+        <h2>Maintenance cadence planner</h2>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Frequency</th>
+              <th>Core tasks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Daily</td>
+              <td>{maintenanceCadence.daily.join(' • ')}</td>
+            </tr>
+            <tr>
+              <td>Weekly</td>
+              <td>{maintenanceCadence.weekly.join(' • ')}</td>
+            </tr>
+            <tr>
+              <td>Monthly</td>
+              <td>{maintenanceCadence.monthly.join(' • ')}</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
-      <section className="bg-rose-50 border border-rose-200 rounded-2xl p-6">
-        <h2 className="text-2xl font-bold text-rose-900 mb-3">Emergency quick-reference</h2>
-        <ul className="list-disc pl-5 text-rose-900 space-y-2">
+      <section className={styles.quickRef}>
+        <h2>Emergency quick-reference</h2>
+        <ul className={styles.alerts}>
           {emergencyActions.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -411,20 +360,13 @@ export default function AquaCoreAcademy() {
       </section>
 
       {completedAcademy && sessionUser && (
-        <section className="bg-white rounded-3xl border-4 border-cyan-200 p-8 text-center shadow-lg">
-          <p className="text-sm uppercase tracking-[0.18em] text-cyan-700">Completion certificate</p>
-          <h2 className="text-4xl font-extrabold text-slate-900 mt-2">AquaCore Academy</h2>
-          <p className="text-slate-600 mt-3">This certifies that</p>
-          <p className="text-3xl font-bold text-cyan-800 mt-1">{sessionUser.name}</p>
-          <p className="text-slate-600 mt-3">has successfully completed all 12 modules in Pool Maintenance Operations.</p>
-          <p className="text-xs text-slate-500 mt-6">Certificate No: {certificateNumber}</p>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="mt-6 px-5 py-3 rounded-xl bg-cyan-700 text-white font-semibold"
-          >
-            Print certificate
-          </button>
+        <section className={styles.cert}>
+          <p>Completion certificate</p>
+          <h2>AquaCore Academy</h2>
+          <p>This certifies that</p>
+          <h3>{sessionUser.name}</h3>
+          <p>has successfully completed all 12 modules in Pool Maintenance Operations.</p>
+          <small>Certificate No: {certificateNumber}</small>
         </section>
       )}
     </div>

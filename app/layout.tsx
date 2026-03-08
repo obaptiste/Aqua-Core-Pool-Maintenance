@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Aqua Core Pool Maintenance',
-  description: 'Training modules for pool operations and maintenance.',
+  title: 'AquaPool | AquaCore Pool Maintenance',
+  description: 'Professional pool operations training and compliance modules for AquaPool teams.',
 };
 
 export default function RootLayout({
